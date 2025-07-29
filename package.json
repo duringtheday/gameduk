@@ -1,5 +1,6 @@
 {
-  "name": "certificate",
+  "name": "gameduk",
+  "homepage": "https://duringtheday.github.io/gameduk",
   "private": true,
   "version": "0.0.0",
   "type": "module",
