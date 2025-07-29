@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import '../styles/CertificateForm.css'
 // import seal from '../assets/logo-academia-x.webp'
-import badge from '../assets/react.svg'
+import badge from '../assets/images-verified-2.png'
 
 export default function CertificateForm() {
   // Estado para el sello de “Aprendizaje Verificado”
@@ -153,7 +153,7 @@ export default function CertificateForm() {
           {logoUrl && <img src={logoUrl} alt="Logo del curso" className="cert-logo" />}
 
           {/* encabezados */}
-          <h1 className="cert-header">Certificado de Finalización</h1>
+          <h1 className="cert-header" style={{ fontFamily: "'Exo 2', sans serif", letterSpacing: '0.8px', color: '#8c8c8c' }}>Certificado de Finalización</h1>
           <p className="cert-validate">Este certificado valida que</p>
           <h2 className="cert-name">{userName}</h2>
           <p className="cert-complete">ha completado exitosamente el reto</p>
