@@ -476,32 +476,32 @@ export default function CertificateForm() {
           {/* fechas, emisor y firma en una sola fila */}
           <div className="cert-details">
             {/* 1) Emitido el */}
-{/* FECHA */}
-<div className="detail-item date-container">
-  <span className="detail-label">Emitido el:</span>
+            {/* FECHA */}
+            <div className="detail-item date-container">
+              <span className="detail-label">Emitido el:</span>
 
-  <span
-    className="detail-value editable-date"
-    onClick={() => issueDateRef.current.showPicker()}
-  >
-    {issueDate
-      ? new Date(issueDate).toLocaleDateString('es-ES', {
-          day: 'numeric',
-          
-          month: 'long',
-          year: 'numeric'
-        })
-      : 'Haz clic para elegir fecha'}
-  </span>
+              <span
+                className="detail-value editable-date"
+                onClick={() => issueDateRef.current.showPicker()}
+              >
+                {issueDate
+                  ? new Date(issueDate).toLocaleDateString('es-ES', {
+                    day: 'numeric',
 
-  <input
-    ref={issueDateRef}
-    type="date"
-    value={issueDate}
-    onChange={(e) => setIssueDate(e.target.value)}
-    className="date-hidden-input"
-  />
-</div>
+                    month: 'long',
+                    year: 'numeric'
+                  })
+                  : 'Haz clic para elegir fecha'}
+              </span>
+
+              <input
+                ref={issueDateRef}
+                type="date"
+                value={issueDate}
+                onChange={(e) => setIssueDate(e.target.value)}
+                className="date-hidden-input"
+              />
+            </div>
 
 
 
