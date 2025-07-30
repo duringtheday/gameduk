@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import '../styles/CertificateForm.css'
 // import seal from '../assets/logo-academia-x.webp'
 import badge from '../assets/images-verified-2.png'
@@ -14,12 +14,29 @@ export default function CertificateForm() {
   const [logoUrl, setLogoUrl] = useState(null)
   const [issuer, setIssuer] = useState('Responsable')
   const [issuerLogoUrl, setIssuerLogoUrl] = useState(null)
-  const [userName, setUserName] = useState('')
+  const [userName, setUserName] = useState('Tu Nombre Aquí')
   const [issueDate, setIssueDate] = useState('') // YYYY-MM-DD
 
   // Nuevos estados para firma
   const [signatureFileUrl, setSignatureFileUrl] = useState(null)
   const [signatureText, setSignatureText] = useState('Nombre Firmante')
+
+  // — FLAGS para “Emitido por” —
+  // showIssuerText = true si el usuario ingresó texto en el input "issuer"
+  const showIssuerText = issuer.trim() !== ''
+  // showIssuerLogo = true si hay una URL de logo cargada
+  const showIssuerLogo = Boolean(issuerLogoUrl)
+
+  // ─── Refs para enfocar campos al editar ────────────────────────────────────
+  const logoInputRef = useRef(null)
+  const issuerInputRef = useRef(null)
+  const issuerLogoInputRef = useRef(null)
+  const sealInputRef = useRef(null)
+  const userNameRef = useRef(null)
+  const issueDateRef = useRef(null)
+  const signatureFileRef = useRef(null)
+  const signatureTextRef = useRef(null)
+
 
   const handleLogo = e => {
     const file = e.target.files[0]
@@ -36,11 +53,16 @@ export default function CertificateForm() {
     if (file) setSignatureFileUrl(URL.createObjectURL(file))
   }
 
-  // — FLAGS para “Emitido por” —
-  // showIssuerText = true si el usuario ingresó texto en el input "issuer"
-  const showIssuerText = issuer.trim() !== ''
-  // showIssuerLogo = true si hay una URL de logo cargada
-  const showIssuerLogo = Boolean(issuerLogoUrl)
+
+  // ─── Manejador genérico de archivos ───────────────────────────────────────
+  const handleFile = (e, setter) => {
+    const file = e.target.files[0]
+    if (file) setter(URL.createObjectURL(file))
+  }
+
+
+  // ─── Limpiar campo ─────────────────────────────────────────────────────────
+  const clear = setter => () => setter('')
 
   return (
     <div className="certificate-form-container">
@@ -48,9 +70,59 @@ export default function CertificateForm() {
       <aside className="form-section">
         <h2>Construye tu Certificado</h2>
 
-        <div className="form-group">
-          <label htmlFor="logo">Tu logo (PNG/JPG):</label>
-          <input type="file" id="logo" accept="image/*" onChange={handleLogo} />
+        {/* ─── Logo del curso con drag & drop + preview ───────────────────── */}
+        <div
+          className="form-group drop-zone"
+          onDragOver={e => {
+            e.preventDefault()
+            e.currentTarget.classList.add('drag-over')
+          }}
+          onDragLeave={e =>
+            e.currentTarget.classList.remove('drag-over')
+          }
+          onDrop={e => {
+            e.preventDefault()
+            e.currentTarget.classList.remove('drag-over')
+            const file = e.dataTransfer.files[0]
+            if (file) {
+              const url = URL.createObjectURL(file)
+              setLogoUrl(url)
+            }
+          }}
+        >
+          <label htmlFor="logo" className="file-label">
+            <input
+              ref={logoInputRef}
+              type="file"
+              id="logo"
+              accept="image/*"
+              onChange={e => {
+                const file = e.target.files[0]
+                if (file) setLogoUrl(URL.createObjectURL(file))
+              }}
+              style={{ display: 'none' }}
+            />
+            Arrastra o haz clic para subir tu logo
+          </label>
+
+          {logoUrl && (
+            <>
+              {/* preview del logo justo aquí */}
+              <img
+                src={logoUrl}
+                alt="Logo cargado"
+                className="cert-logo"
+              />
+              {/* botón para borrar el logo */}
+              <button
+                type="button"
+                className="btn-clear"
+                onClick={() => setLogoUrl(null)}
+              >
+                🗑️ Borrar logo
+              </button>
+            </>
+          )}
         </div>
 
         <div className="form-group">
@@ -58,70 +130,227 @@ export default function CertificateForm() {
           <input
             type="text"
             id="issuer"
+            className="issuer-input"
             value={issuer}
             onChange={e => setIssuer(e.target.value)}
           />
+          <button type="button" className="btn-edit" onClick={() => issuerInputRef.current.focus()}>
+            ✏️ Editar
+          </button>
+          <button type="button" className="btn-clear" onClick={clear(setIssuer)}>
+            🗑️ Borrar
+          </button>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="issuerLogo">Logo de la institución:</label>
+        {/* ─── Logo de la institución con drag & drop + preview ───────────────── */}
+        <div
+          className="form-group drop-zone"
+          onDragOver={e => {
+            e.preventDefault()
+            e.currentTarget.classList.add('drag-over')
+          }}
+          onDragLeave={e => {
+            e.currentTarget.classList.remove('drag-over')
+          }}
+          onDrop={e => {
+            e.preventDefault()
+            e.currentTarget.classList.remove('drag-over')
+            const file = e.dataTransfer.files[0]
+            if (file) {
+              setIssuerLogoUrl(URL.createObjectURL(file))
+            }
+          }}
+        >
+          <label htmlFor="issuerLogo" className="file-label">
+            {/* input oculto pero clicable */}
+            <input
+              ref={issuerLogoInputRef}
+              type="file"
+              id="issuerLogo"
+              accept="image/*"
+              onChange={e => {
+                const file = e.target.files[0]
+                if (file) setIssuerLogoUrl(URL.createObjectURL(file))
+              }}
+              style={{ display: 'none' }}
+            />
+            Arrastra o haz clic para subir logo de institución
+          </label>
 
-          <input
-            type="file"
-            id="issuerLogo"
-            accept="image/*"
-            onChange={handleIssuerLogo}
-          />
+          {issuerLogoUrl && (
+            <>
+              {/* preview del logo */}
+              <img
+                src={issuerLogoUrl}
+                alt="Logo de institución cargado"
+                className="issuer-logo-img"
+              />
+              {/* botón borrar */}
+              <button
+                type="button"
+                className="btn-clear"
+                onClick={() => setIssuerLogoUrl(null)}
+              >
+                🗑️ Borrar logo
+              </button>
+            </>
+          )}
         </div>
-        {/* Sello de verificación */}
-        <div className="form-group">
-          <label htmlFor="sealFile">Sello “Aprendizaje Verificado” (PNG/JPG):</label>
-          <input
-            type="file"
-            id="sealFile"
-            accept="image/*"
-            onChange={handleSealFile}
-          />
+
+        {/* ─── Sello de verificación con drag & drop + preview ───────────────── */}
+        <div
+          className="form-group drop-zone"
+          onDragOver={e => {
+            e.preventDefault()
+            e.currentTarget.classList.add('drag-over')
+          }}
+          onDragLeave={e =>
+            e.currentTarget.classList.remove('drag-over')
+          }
+          onDrop={e => {
+            e.preventDefault()
+            e.currentTarget.classList.remove('drag-over')
+            const file = e.dataTransfer.files[0]
+            if (file) {
+              const url = URL.createObjectURL(file)
+              setSealUrl(url)
+            }
+          }}
+        >
+          <label htmlFor="sealFile" className="file-label">
+            {/* input oculto pero clicable */}
+            <input
+              ref={sealInputRef}
+              type="file"
+              id="sealFile"
+              accept="image/*"
+              onChange={e => {
+                const file = e.target.files[0]
+                if (file) setSealUrl(URL.createObjectURL(file))
+              }}
+              style={{ display: 'none' }}
+            />
+            Arrastra o haz clic para subir tu sello
+          </label>
+
+          {sealUrl && (
+            <>
+              {/* preview del sello justo aquí */}
+              <img
+                src={sealUrl}
+                alt="Sello cargado"
+                className="signature-img"
+              />
+              {/* botón para borrar el sello */}
+              <button
+                type="button"
+                className="btn-clear"
+                onClick={() => setSealUrl(null)}
+              >
+                🗑️ Borrar sello
+              </button>
+            </>
+          )}
         </div>
+
 
         <div className="form-group">
           <label htmlFor="userName">Tu Nombre Completo:</label>
           <input
             type="text"
             id="userName"
+            className="issuer-input"
             value={userName}
             onChange={e => setUserName(e.target.value)}
           />
+          <button type="button" className="btn-edit" onClick={() => userNameRef.current.focus()}>
+            ✏️ Editar
+          </button>
+          <button type="button" className="btn-clear" onClick={clear(setUserName)}>
+            🗑️ Borrar
+          </button>
         </div>
 
         <div className="form-group">
           <label htmlFor="issueDate">Fecha de emisión:</label>
           <input
+            ref={issueDateRef}
             type="date"
             id="issueDate"
             value={issueDate}
             onChange={e => setIssueDate(e.target.value)}
           />
+          <button type="button" className="btn-clear" onClick={clear(setIssueDate)}>
+            🗑️ Borrar
+          </button>
         </div>
 
-        {/* Aquí debe haber un lugar para cargar la firma electrónica o poner el nombre sobre el espacio de la firma */}
-        <div className="form-group">
-          <label htmlFor="signatureFile">Firma electrónica (PNG/JPG):</label>
-          <input
-            type="file"
-            id="signatureFile"
-            accept="image/*"
-            onChange={handleSignatureFile}
-          />
+        {/* ─── Firma electrónica con drag & drop + preview ──────────────────────── */}
+        <div
+          className="form-group drop-zone"
+          onDragOver={e => {
+            e.preventDefault()
+            e.currentTarget.classList.add('drag-over')
+          }}
+          onDragLeave={e =>
+            e.currentTarget.classList.remove('drag-over')
+          }
+          onDrop={e => {
+            e.preventDefault()
+            e.currentTarget.classList.remove('drag-over')
+            const file = e.dataTransfer.files[0]
+            if (file) {
+              // crea URL y guarda en estado
+              setSignatureFileUrl(URL.createObjectURL(file))
+            }
+          }}
+        >
+          <label htmlFor="signatureFile" className="file-label">
+            <input
+              type="file"
+              id="signatureFile"
+              accept="image/*"
+              onChange={e => handleFile(e, setSignatureFileUrl)}
+              style={{ display: 'none' }}
+            />
+            Arrastra o haz clic para subir tu firma
+          </label>
         </div>
+
+        {signatureFileUrl && (
+          <>
+            {/* muestra mini‑preview de la firma */}
+            <img
+              src={signatureFileUrl}
+              alt="Firma cargada"
+              className="signature-img"
+            />
+            {/* botón borrar firma */}
+            <button
+              type="button"
+              className="btn-clear"
+              onClick={() => setSignatureFileUrl(null)}
+            >
+              🗑️ Borrar
+            </button>
+          </>
+        )}
+
         <div className="form-group">
           <label htmlFor="signatureText">O escribe tu firma:</label>
           <input
             type="text"
             id="signatureText"
+            className="issuer-input"
             value={signatureText}
             onChange={e => setSignatureText(e.target.value)}
           />
+          <button type="button" className="btn-edit" onClick={() => signatureTextRef.current.focus()}>
+            ✏️ Editar
+          </button>
+          <button type="button" className="btn-clear" onClick={clear(setSignatureText)}>
+            🗑️ Borrar
+          </button>
         </div>
 
         <h3>Guía rápida</h3>
@@ -133,10 +362,10 @@ export default function CertificateForm() {
           <li>Fecha de emisión: selecciona la fecha correcta</li>
           <li>Firma electrónica o texto de firma</li>
         </ul>
-      </aside>
+      </aside >
 
       {/* ─── Vista Previa del Certificado ──────────────────────────────────────── */}
-      <section className="preview-section">
+      < section className="preview-section" >
         <div className="certificate">
           {/* cinta y sello */}
           <div className="ribbon" />
@@ -177,8 +406,8 @@ export default function CertificateForm() {
             <div
               className={
                 `detail-item issuer-item` +
-                (issuer.trim() ? ' has-text' : '') +
-                (issuerLogoUrl ? ' has-logo' : '')
+                (showIssuerText ? ' has-text' : '') +
+                (showIssuerLogo ? ' has-logo' : '')
               }
             >
               <span className="detail-label">Emitido por:</span>
@@ -226,8 +455,8 @@ export default function CertificateForm() {
             Imprimir
           </button>
         </div>
-      </section>
-    </div>
+      </section >
+    </div >
   )
 }
 

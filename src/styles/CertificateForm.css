@@ -1,26 +1,43 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  box-sizing: none;
+}
+
+ul, ol {
+  list-style: none;
+}
+
 /* ─── Contenedor general ──────────────────────────────────────────────────── */
 .certificate-form-container {
   display: flex;
   gap: 2rem;
-  padding: 2rem;
+  /* padding: 2rem; */
+  margin: 0;
+  padding: 0;
   font-family: 'Segoe UI', sans-serif;
-  background: #f4f4f4;
+  background: linear-gradient(to right, #1E0D6E 0%, #3B0F91 45%, #5D14A8 100%), linear-gradient(to right, #f93dff 0%, #b032c2 100%);
 }
 
 /* ─── Sección de formulario ───────────────────────────────────────────────── */
 .form-section {
   flex: 1;
   max-width: 320px;
-  background: white;
+  background: linear-gradient(to right, #1E0D6E 0%, #3B0F91 45%, #5D14A8 100%) padding-box, linear-gradient(to right, #f93dff 0%, #b032c2 100%) border-box;
   padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-radius: 0px;
+  box-shadow: 5px 5px 6px rgba(0,0,0,0.1);
+  color: rgb(253, 245, 255);
 }
 .form-section h2 {
   margin-top: 0;
 }
 .form-group {
+  /* display: flex;
+  flex-direction: column; */
   margin-bottom: 1rem;
+  gap: 0.5rem;
 }
 .form-group label {
   display: block;
@@ -36,7 +53,7 @@
 .guidelines {
   margin: 1rem 0 0 1rem;
   list-style: disc;
-  color: #555;
+  color: #fefaff;
 }
 
 /* ─── Vista previa ───────────────────────────────────────────────────────── */
@@ -105,8 +122,8 @@
 .verified-stamp {
   position: absolute;
   top: 125px;
-  right: 97px; /* justo a la izquierda de la cinta */
-  width: 100px;
+  right: 94px; /* justo a la izquierda de la cinta */
+  width: 105px;
   height: 100px;
   background: url('../assets/react.svg') no-repeat center/contain;
   opacity: 0.9;
@@ -357,4 +374,95 @@
   max-height: 80px;         /* alto máximo deseado */
   object-fit: contain;      /* mantiene proporción dentro de esos límites */
   margin: 0.2rem 0;         /* un pequeño margen vertical */
+}
+
+
+
+
+
+
+
+/* ───── Botones “Editar” y “Borrar” con tu paleta ───── */
+.btn-edit,
+.btn-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.8rem;
+  margin-top: 0.5rem;
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  color: #fff;
+}
+
+/* Editar: violeta */
+.btn-edit {
+  background: #aa3eae;        
+}
+.btn-edit:hover {
+  background: #831486;          
+  transform: translateY(-1px);
+}
+
+/* Borrar: naranja */
+.btn-clear {
+  background: #ff6f00;          
+}
+.btn-clear:hover {
+  background: #e65100;          
+  transform: translateY(-1px);
+}
+
+/* ───── Etiqueta “Arrastra o haz clic” para file inputs ───── */
+.file-label {
+  display: block;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  border: 1px dashed #5D14A8;   
+  border-radius: 6px;
+  text-align: center;
+  color: #fff;
+  font-size: 15px;
+  background: rgb(126, 98, 211); 
+  transition: background 0.2s;
+}
+.file-label:hover {
+  background:  #aa3eae;
+}
+
+/* ───── Feedback visual en inputs ───── */
+.form-group input[type="text"],
+.form-group input[type="date"] {
+  border: 1px solid #ccc;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-group input[type="text"]:focus,
+.form-group input[type="date"]:focus {
+  outline: none;
+  border-color: #bf55c7;           /* deep purple */
+  box-shadow: 0 0 5px 1px rgba(206, 54, 214, 1);
+}
+
+/* ───── Mini‑thumbnail tras upload de imagen ───── */
+.form-group img {
+  display: block;
+  max-width: 80px;
+  max-height: 80px;
+  margin-top: 0.5rem;
+  border-radius: 4px;
+  object-fit: contain;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+
+
+/* color del texto dentro del input “Emitido por” */
+.issuer-input {
+  color: #8f8e91;       /* deep purple, por ejemplo */
+  caret-color: #f93dff; /* color del cursor */
 }
