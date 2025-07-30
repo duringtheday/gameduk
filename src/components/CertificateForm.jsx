@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react'
 import '../styles/CertificateForm.css'
 // import seal from '../assets/logo-academia-x.webp'
 import badge from '../assets/images-verified-2.png'
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function CertificateForm() {
   // Estado para el sello de “Aprendizaje Verificado”
@@ -369,83 +371,233 @@ export default function CertificateForm() {
         <div className="certificate">
           {/* cinta y sello */}
           <div className="ribbon" />
-          {sealUrl && (
+          {/* SELLO */}
+          {sealUrl ? (
             <img
               src={sealUrl}
-              alt="Aprendizaje Verificado"
-              className="verified-stamp"
+              className="verified-stamp editable-seal"
+              onClick={() => sealInputRef.current.click()}
+            />
+          ) : (
+            <div
+              className="verified-stamp editable-seal empty"
+              onClick={() => sealInputRef.current.click()}
             />
           )}
 
+          <input
+            ref={sealInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const file = e.target.files[0]
+              if (file) setSealUrl(URL.createObjectURL(file))
+            }}
+          />
+
+
 
           {/* logo del curso */}
-          {logoUrl && <img src={logoUrl} alt="Logo del curso" className="cert-logo" />}
+          {/* LOGO DEL CURSO */}
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              className="cert-logo editable-logo"
+              onClick={() => logoInputRef.current.click()}
+            />
+          ) : (
+            <div
+              className="cert-logo editable-logo empty"
+              onClick={() => logoInputRef.current.click()}
+            />
+          )}
+
+          <input
+            ref={logoInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const file = e.target.files[0]
+              if (file) setLogoUrl(URL.createObjectURL(file))
+            }}
+          />
+
 
           {/* encabezados */}
-          <h1 className="cert-header" style={{ fontFamily: "'Exo 2', sans serif", letterSpacing: '0.8px', color: '#8c8c8c' }}>Certificado de Finalización</h1>
-          <p className="cert-validate">Este certificado valida que</p>
-          <h2 className="cert-name">{userName}</h2>
-          <p className="cert-complete">ha completado exitosamente el reto</p>
-          <h3 className="cert-course">Desafío de Storytelling con Datos</h3>
+          {/* TÍTULO */}
+          <h1
+            className="cert-header editable-text"
+            contentEditable
+            suppressContentEditableWarning
+          >
+            Certificado de Finalización
+          </h1>
+
+          {/* SUBTÍTULO */}
+          <p
+            className="cert-validate editable-text"
+            contentEditable
+            suppressContentEditableWarning
+          >
+            Este certificado valida que
+          </p>
+
+          {/* NOMBRE DEL USUARIO */}
+          <h2
+            className="cert-name editable-text"
+            contentEditable
+            suppressContentEditableWarning
+            onBlur={(e) => setUserName(e.target.innerText)}
+          >
+            {userName}
+          </h2>
+
+          {/* TEXTO INTERMEDIO */}
+          <p
+            className="cert-complete editable-text"
+            contentEditable
+            suppressContentEditableWarning
+          >
+            ha completado exitosamente el reto
+          </p>
+
+          {/* CURSO */}
+          <h3
+            className="cert-course editable-text"
+            contentEditable
+            suppressContentEditableWarning
+          >
+            Desafío de Storytelling con Datos
+          </h3>
+
 
           {/* fechas, emisor y firma en una sola fila */}
           <div className="cert-details">
             {/* 1) Emitido el */}
-            <div className="detail-item">
-              <span className="detail-label">Emitido el:</span>
-              <span className="detail-value">
-                {new Date(issueDate).toLocaleDateString('es-ES', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric'
-                })}
-              </span>
-            </div>
+{/* FECHA */}
+<div className="detail-item date-container">
+  <span className="detail-label">Emitido el:</span>
+
+  <div className="date-wrapper">
+    <input
+      ref={issueDateRef}
+      type="date"
+      value={issueDate}
+      onChange={(e) => setIssueDate(e.target.value)}
+      className="date-input-native"
+    />
+    <span className="date-text">
+      {issueDate
+        ? new Date(issueDate).toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          })
+        : 'Haz clic para elegir fecha'}
+    </span>
+  </div>
+</div>
+
+
 
             {/* 2) Emitido por */}
+            {/* EMISOR */}
             <div
               className={
                 `detail-item issuer-item` +
-                (showIssuerText ? ' has-text' : '') +
-                (showIssuerLogo ? ' has-logo' : '')
+                (issuer.trim() ? ' has-text' : '') +
+                (issuerLogoUrl ? ' has-logo' : '')
               }
             >
               <span className="detail-label">Emitido por:</span>
 
-              {/* Texto solo si existe */}
-              {issuer.trim() && (
-                <span className="detail-value issuer-logo">{issuer}</span>
-              )}
+              {/* Texto editable */}
+              <span
+                className="detail-value editable-issuer-text"
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={(e) => setIssuer(e.target.innerText)}
+              >
+                {issuer}
+              </span>
 
-              {/* Logo solo si existe */}
-              {issuerLogoUrl && (
+              {/* Logo editable */}
+              {issuerLogoUrl ? (
                 <img
                   src={issuerLogoUrl}
-                  alt="Logo de institución"
-                  className="issuer-logo-img"
+                  className="issuer-logo-img editable-issuer-logo"
+                  onClick={() => issuerLogoInputRef.current.click()}
+                />
+              ) : (
+                <div
+                  className="issuer-logo-img editable-issuer-logo empty"
+                  onClick={() => issuerLogoInputRef.current.click()}
                 />
               )}
+
+              <input
+                ref={issuerLogoInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const file = e.target.files[0]
+                  if (file) setIssuerLogoUrl(URL.createObjectURL(file))
+                }}
+              />
             </div>
 
+
             {/* 3) Firma */}
+            {/* FIRMA */}
             <div className="detail-item">
               {signatureFileUrl ? (
                 <img
                   src={signatureFileUrl}
-                  alt="Firma electrónica"
-                  className="signature-img"
+                  className="signature-img editable-signature"
+                  onClick={() => signatureFileRef.current.click()}
                 />
               ) : (
-                <span className="signature-name">{signatureText}</span>
+                <span
+                  className="signature-name editable-signature-text"
+                  contentEditable
+                  suppressContentEditableWarning
+                  onBlur={(e) => setSignatureText(e.target.innerText)}
+                >
+                  {signatureText}
+                </span>
               )}
-              <span className="signature-role">Cargo Firmante</span>
+
+              <span className="signature-role">
+                Cargo Firmante
+              </span>
+
+
+              <input
+                ref={signatureFileRef}
+                type="file"
+                accept="image/*"
+                className="hidden-input"
+                onChange={(e) => {
+                  const file = e.target.files[0]
+                  if (file) setSignatureFileUrl(URL.createObjectURL(file))
+                }}
+              />
             </div>
+
           </div>
 
           {/* verificación blockchain */}
+          {/* FOOTER */}
           <div className="cert-footer">
             <img src={badge} alt="Blockchain Badge" className="badge-icon" />
-            <span className="verify-text">
+            <span
+              className="verify-text editable-footer-text"
+              contentEditable
+              suppressContentEditableWarning
+            >
               Verificar en: gameduk.com/verify/ID_UNICO_BLOCKCHAIN
             </span>
           </div>
