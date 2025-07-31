@@ -2,7 +2,10 @@ import React, { useState, useRef } from 'react'
 import '../styles/CertificateForm.css'
 // import seal from '../assets/logo-academia-x.webp'
 import badge from '../assets/images-verified-2.png'
-import DatePicker from "react-datepicker";
+import { useReactToPrint } from 'react-to-print';
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+// import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function CertificateForm() {
@@ -38,7 +41,22 @@ export default function CertificateForm() {
   const issueDateRef = useRef(null)
   const signatureFileRef = useRef(null)
   const signatureTextRef = useRef(null)
+  // referencia al certificado
+  const certificateRef = useRef();
 
+  // // función de impresión
+  // const handlePrint = useReactToPrint({
+  //   content: () => certificateRef.current,
+  //   documentTitle: 'Certificado',
+  //   // pageStyle: `
+  //   //   @page { size: A4 landscape; margin: 0; }
+  //   //   body { margin: 0; }
+  //   // `,
+  // })
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   const handleLogo = e => {
     const file = e.target.files[0]
@@ -65,6 +83,78 @@ export default function CertificateForm() {
 
   // ─── Limpiar campo ─────────────────────────────────────────────────────────
   const clear = setter => () => setter('')
+
+
+
+  // IMPRIMIR/DESCARGAR EN "PDF"
+  // const handleGeneratePDF = async () => {
+  //   const certificateElement = document.querySelector(".certificate");
+
+  //   // Ocultar botón de imprimir
+  //   const printButton = certificateElement.querySelector(".print-btn");
+  //   if (printButton) printButton.style.display = "none";
+
+  //   // Capturamos el certificado
+  //   const canvas = await html2canvas(certificateElement, {
+  //     scale: 4,
+  //     useCORS: true,
+  //     backgroundColor: "#3B0F91",
+  //   });
+
+  //   // Restauramos el botón
+  //   if (printButton) printButton.style.display = "";
+
+  //   const imgData = canvas.toDataURL("image/png");
+
+  //   // Creamos el PDF a tamaño A4
+  //   const pdf = new jsPDF({
+  //     orientation: "landscape",
+  //     unit: "mm",
+  //     format: "a4",
+  //   });
+
+  //   // Ancho y alto del PDF (milímetros)
+  //   const pdfWidth = pdf.internal.pageSize.getWidth();
+  //   const pdfHeight = pdf.internal.pageSize.getHeight();
+
+  //   // Aquí rellenamos TODA la hoja A4 (aunque estire un poco)
+  //   pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+  //   pdf.save("Certificado.pdf");
+  // };
+
+
+
+
+  // CONFIGURAMOS react-to-print:
+  // const handlePrint = () => {
+  //     // 1) Clonamos el HTML del certificado
+  //     const certificateHtml = certificateRef.current.outerHTML;
+
+  //     // 2) Abrimos ventana de impresión
+  //     const printWindow = window.open("", "_blank", "width=1200,height=800");
+  //     printWindow.document.write(`
+  //       <html>
+  //         <head>
+  //           <link rel="stylesheet" href="/print.css" />
+  //           <!-- si necesitas otros estilos, inclúyelos aquí -->
+  //         </head>
+  //         <body>
+  //           ${certificateHtml}
+  //         </body>
+  //       </html>
+  //     `);
+  //     printWindow.document.close();
+
+  //     // 3) Esperamos a que cargue todo
+  //     printWindow.focus();
+  //     printWindow.onload = () => {
+  //       printWindow.print();
+  //       printWindow.close();
+  //     };
+  //   };
+
+
 
   return (
     <div className="certificate-form-container">
@@ -367,249 +457,239 @@ export default function CertificateForm() {
       </aside >
 
       {/* ─── Vista Previa del Certificado ──────────────────────────────────────── */}
-      < section className="preview-section" >
-        <div className="certificate">
-          {/* cinta y sello */}
-          <div className="ribbon" />
-          {/* SELLO */}
-          {sealUrl ? (
-            <img
-              src={sealUrl}
-              className="verified-stamp editable-seal"
-              onClick={() => sealInputRef.current.click()}
-            />
-          ) : (
-            <div
-              className="verified-stamp editable-seal empty"
-              onClick={() => sealInputRef.current.click()}
-            />
-          )}
-
-          <input
-            ref={sealInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={(e) => {
-              const file = e.target.files[0]
-              if (file) setSealUrl(URL.createObjectURL(file))
-            }}
-          />
-
-
-
-          {/* logo del curso */}
+      <section className="preview-section" >
+        <div className="certificate" ref={certificateRef}>
           {/* LOGO DEL CURSO */}
-          {logoUrl ? (
-            <img
-              src={logoUrl}
-              className="cert-logo editable-logo"
-              onClick={() => logoInputRef.current.click()}
-            />
-          ) : (
-            <div
-              className="cert-logo editable-logo empty"
-              onClick={() => logoInputRef.current.click()}
-            />
-          )}
-
-          <input
-            ref={logoInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={(e) => {
-              const file = e.target.files[0]
-              if (file) setLogoUrl(URL.createObjectURL(file))
-            }}
-          />
-
-
-          {/* encabezados */}
-          {/* TÍTULO */}
-          <h1
-            className="cert-header editable-text"
-            contentEditable
-            suppressContentEditableWarning
-          >
-            Certificado de Finalización
-          </h1>
-
-          {/* SUBTÍTULO */}
-          <p
-            className="cert-validate editable-text"
-            contentEditable
-            suppressContentEditableWarning
-          >
-            Este certificado valida que
-          </p>
-
-          {/* NOMBRE DEL USUARIO */}
-          <h2
-            className="cert-name editable-text"
-            contentEditable
-            suppressContentEditableWarning
-            onBlur={(e) => setUserName(e.target.innerText)}
-          >
-            {userName}
-          </h2>
-
-          {/* TEXTO INTERMEDIO */}
-          <p
-            className="cert-complete editable-text"
-            contentEditable
-            suppressContentEditableWarning
-          >
-            ha completado exitosamente el reto
-          </p>
-
-          {/* CURSO */}
-          <h3
-            className="cert-course editable-text"
-            contentEditable
-            suppressContentEditableWarning
-          >
-            Desafío de Storytelling con Datos
-          </h3>
-
-
-          {/* fechas, emisor y firma en una sola fila */}
-          <div className="cert-details">
-            {/* 1) Emitido el */}
-            {/* FECHA */}
-            <div className="detail-item date-container">
-              <span className="detail-label">Emitido el:</span>
-
-              <span
-                className="detail-value editable-date"
-                onClick={() => issueDateRef.current.showPicker()}
-              >
-                {issueDate
-                  ? new Date(issueDate).toLocaleDateString('es-ES', {
-                    day: 'numeric',
-
-                    month: 'long',
-                    year: 'numeric'
-                  })
-                  : 'Haz clic para elegir fecha'}
-              </span>
-
-              <input
-                ref={issueDateRef}
-                type="date"
-                value={issueDate}
-                onChange={(e) => setIssueDate(e.target.value)}
-                className="date-hidden-input"
+          <div className="certificate-header-block">
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                className="cert-logo editable-logo"
+                onClick={() => logoInputRef.current.click()}
               />
-            </div>
-
-
-
-
-            {/* 2) Emitido por */}
-            {/* EMISOR */}
-            <div
-              className={
-                `detail-item issuer-item` +
-                (issuer.trim() ? ' has-text' : '') +
-                (issuerLogoUrl ? ' has-logo' : '')
-              }
-            >
-              <span className="detail-label">Emitido por:</span>
-
-              {/* Texto editable */}
-              <span
-                className="detail-value editable-issuer-text"
-                contentEditable
-                suppressContentEditableWarning
-                onBlur={(e) => setIssuer(e.target.innerText)}
-              >
-                {issuer}
-              </span>
-
-              {/* Logo editable */}
-              {issuerLogoUrl ? (
-                <img
-                  src={issuerLogoUrl}
-                  className="issuer-logo-img editable-issuer-logo"
-                  onClick={() => issuerLogoInputRef.current.click()}
-                />
-              ) : (
-                <div
-                  className="issuer-logo-img editable-issuer-logo empty"
-                  onClick={() => issuerLogoInputRef.current.click()}
-                />
-              )}
-
-              <input
-                ref={issuerLogoInputRef}
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={(e) => {
-                  const file = e.target.files[0]
-                  if (file) setIssuerLogoUrl(URL.createObjectURL(file))
-                }}
+            ) : (
+              <div
+                className="cert-logo editable-logo empty"
+                onClick={() => logoInputRef.current.click()}
               />
-            </div>
-
-
-            {/* 3) Firma */}
-            {/* FIRMA */}
-            <div className="detail-item">
-              {signatureFileUrl ? (
-                <img
-                  src={signatureFileUrl}
-                  className="signature-img editable-signature"
-                  onClick={() => signatureFileRef.current.click()}
-                />
-              ) : (
-                <span
-                  className="signature-name editable-signature-text"
-                  contentEditable
-                  suppressContentEditableWarning
-                  onBlur={(e) => setSignatureText(e.target.innerText)}
-                >
-                  {signatureText}
-                </span>
-              )}
-
-              <span className="signature-role">
-                Cargo Firmante
-              </span>
-
-
-              <input
-                ref={signatureFileRef}
-                type="file"
-                accept="image/*"
-                className="hidden-input"
-                onChange={(e) => {
-                  const file = e.target.files[0]
-                  if (file) setSignatureFileUrl(URL.createObjectURL(file))
-                }}
-              />
-            </div>
-
+            )}
+            {/* TÍTULO */}
+            <h1 className="cert-header editable-text" contentEditable suppressContentEditableWarning>
+              Certificado de Finalización
+            </h1>
           </div>
+          <div className="certificate-body-block">
+            {/* cinta y sello */}
+            <div className="ribbon" />
+            {/* SELLO */}
+            {sealUrl ? (
+              <img
+                src={sealUrl}
+                className="verified-stamp editable-seal"
+                onClick={() => sealInputRef.current.click()}
+              />
+            ) : (
+              <div
+                className="verified-stamp editable-seal empty"
+                onClick={() => sealInputRef.current.click()}
+              />
+            )}
 
-          {/* verificación blockchain */}
-          {/* FOOTER */}
-          <div className="cert-footer">
-            <img src={badge} alt="Blockchain Badge" className="badge-icon" />
-            <span
-              className="verify-text editable-footer-text"
+            <input
+              ref={sealInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const file = e.target.files[0]
+                if (file) setSealUrl(URL.createObjectURL(file))
+              }}
+            />
+
+
+
+            {/* SUBTÍTULO */}
+            <p
+              className="cert-validate editable-text"
               contentEditable
               suppressContentEditableWarning
             >
-              Verificar en: gameduk.com/verify/ID_UNICO_BLOCKCHAIN
-            </span>
-          </div>
+              Este certificado valida que
+            </p>
 
-          {/* botón imprimir */}
-          <button onClick={() => window.print()} className="print-btn">
-            Imprimir
-          </button>
+            {/* NOMBRE DEL USUARIO */}
+            <h2
+              className="cert-name editable-text"
+              contentEditable
+              suppressContentEditableWarning
+              onBlur={(e) => setUserName(e.target.innerText)}
+            >
+              {userName}
+            </h2>
+
+            {/* TEXTO INTERMEDIO */}
+            <p
+              className="cert-complete editable-text"
+              contentEditable
+              suppressContentEditableWarning
+            >
+              ha completado exitosamente el reto
+            </p>
+
+            {/* CURSO */}
+            <h3
+              className="cert-course editable-text"
+              contentEditable
+              suppressContentEditableWarning
+            >
+              Desafío de Storytelling con Datos
+            </h3>
+
+
+            {/* fechas, emisor y firma en una sola fila */}
+            <div className="cert-details">
+              {/* 1) Emitido el */}
+              {/* FECHA */}
+              <div className="detail-item date-container">
+                <span className="detail-label">Emitido el:</span>
+
+                <span
+                  className="detail-value editable-date"
+                  onClick={() => issueDateRef.current.showPicker()}
+                >
+                  {issueDate
+                    ? new Date(issueDate).toLocaleDateString('es-ES', {
+                      day: 'numeric',
+
+                      month: 'long',
+                      year: 'numeric'
+                    })
+                    : 'Haz clic para elegir fecha'}
+                </span>
+
+                <input
+                  ref={issueDateRef}
+                  type="date"
+                  value={issueDate}
+                  onChange={(e) => setIssueDate(e.target.value)}
+                  className="date-hidden-input"
+                />
+              </div>
+
+
+
+
+              {/* 2) Emitido por */}
+              {/* EMISOR */}
+              <div
+                className={
+                  `detail-item issuer-item` +
+                  (issuer.trim() ? ' has-text' : '') +
+                  (issuerLogoUrl ? ' has-logo' : '')
+                }
+              >
+                <span className="detail-label">Emitido por:</span>
+
+                {/* Texto editable */}
+                <span
+                  className="detail-value editable-issuer-text"
+                  contentEditable
+                  suppressContentEditableWarning
+                  onBlur={(e) => setIssuer(e.target.innerText)}
+                >
+                  {issuer}
+                </span>
+
+                {/* Logo editable */}
+                {issuerLogoUrl ? (
+                  <img
+                    src={issuerLogoUrl}
+                    className="issuer-logo-img editable-issuer-logo"
+                    onClick={() => issuerLogoInputRef.current.click()}
+                  />
+                ) : (
+                  <div
+                    className="issuer-logo-img editable-issuer-logo empty"
+                    onClick={() => issuerLogoInputRef.current.click()}
+                  />
+                )}
+
+                <input
+                  ref={issuerLogoInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={(e) => {
+                    const file = e.target.files[0]
+                    if (file) setIssuerLogoUrl(URL.createObjectURL(file))
+                  }}
+                />
+              </div>
+
+
+              {/* 3) Firma */}
+              {/* FIRMA */}
+              <div className="detail-item signature-item">
+                <div className="signature-box">
+                  {signatureFileUrl ? (
+                    <img
+                      src={signatureFileUrl}
+                      alt="Firma cargada"
+                      className="signature-img editable-signature"
+                      onClick={() => signatureFileRef.current.click()}
+                    />
+                  ) : (
+                    <span
+                      className="signature-name editable-signature-text"
+                      contentEditable
+                      suppressContentEditableWarning
+                      onBlur={e => setSignatureText(e.target.innerText)}
+                      onClick={() => signatureFileRef.current.click()}
+                    >
+                      {signatureText}
+                    </span>
+                  )}
+                  <input
+                    ref={signatureFileRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden-input"
+                    onChange={e => handleFile(e, setSignatureFileUrl)}
+                  />
+                  <span className="signature-role">Cargo Firmante</span>
+                </div>
+              </div>
+
+            </div>
+
+            {/* verificación blockchain */}
+            {/* FOOTER */}
+            <div className="cert-footer">
+              <img src={badge} alt="Blockchain Badge" className="badge-icon" />
+              <span
+                className="verify-text editable-footer-text"
+                contentEditable
+                suppressContentEditableWarning
+              >
+                Verificar en: gameduk.com/verify/ID_UNICO_BLOCKCHAIN
+              </span>
+            </div>
+
+            {/* botón imprimir */}
+            <button
+              type="button"
+              className="print-btn"
+              onClick={handlePrint}
+            >
+              {/* <button
+            onClick={() => window.print()}
+            className="print-btn no-capture"
+          > */}
+              {/* Descargar/Imprimir */}
+              Imprimir
+            </button>
+
+          </div>
         </div>
       </section >
     </div >
